@@ -1,0 +1,14 @@
+[server]
+http_port = 3000
+domain = localhost
+http_cert_file = /sou_podman/templates/cert.pem
+http_cert_key = /sou_podman/templates/key.pem
+
+[database]
+url = sqlite3:grafana.db
+
+[auth.anonymous]
+enabled = true
+
+[smtp]
+enabled = false

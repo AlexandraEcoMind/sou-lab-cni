@@ -1,0 +1,59 @@
+- name: Install podman on soufe1 and soube2
+  apt:
+    name: podman
+    state: present
+  delegate_to: "{{ inventory_hostname }}"
+
+- name: Install HaProxy on soufe1 via podman
+  community.general.podman_container:
+    name: haproxy
+    image: haproxy:latest
+    state: started
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/etc/haproxy/haproxy.cfg:/usr/local/etc/haproxy/haproxy.cfg"
+  delegate_to: soufe1
+
+- name: Configure HaProxy template
+  template:
+    src: haproxy.cfg.j2
+    dest: /etc/haproxy/haproxy.cfg
+  delegate_to: soufe1
+
+- name: Install Prometheus and Grafana on soube2 via podman
+  community.general.podman_container:
+    name: prometheus-container
+    state: started
+    containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        volumes:
+          - "/etc/prometheus/prometheus:/etc/prometheus"
+        env:
+          - name: TZ
+            value: "UTC"
+      - name: grafana
+        image: grafana/grafana:latest
+        ports:
+          - "3000:3000"
+        volumes:
+          - "/etc/grafana/grafana:/var/lib/grafana"
+        env:
+          - name: TZ
+            value: "UTC"
+
+- name: Configure Grafana and Prometheus templates
+  hosts: soube2
+  tasks:
+    - name: Copy Grafana configuration template
+      template:
+        src: grafana.ini.j2
+        dest: /etc/grafana/grafana/grafana.ini
+
+    - name: Copy Prometheus configuration template
+      template:
+        src: prometheus.yml.j2
+        dest: /etc/prometheus/prometheus/prometheus.yml
+
