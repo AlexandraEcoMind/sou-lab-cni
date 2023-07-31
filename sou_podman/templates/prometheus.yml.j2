@@ -1,12 +1,7 @@
 global:
   scrape_interval: 15s
-  evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'node'
+  - job_name: 'prometheus'
     static_configs:
-      - targets: ['localhost:9100']
-      tls_config:
-          ca_file: /sou_podman/templates/cert.pem
-          cert_file: /sou_podman/templates/cert.pem
-          key_file: /sou_podman/templates/key.pem
+      - targets: ['localhost:9090']

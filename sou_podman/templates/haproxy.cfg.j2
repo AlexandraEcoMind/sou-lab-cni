@@ -11,7 +11,29 @@ frontend http
   bind *:80
   default_backend servers
 
+frontend https
+  bind *:443 ssl crt /path/to/cert.pem
+  default_backend servers
+
 backend servers
   balance roundrobin
   server server1 192.168.1.10:8000 check
   server server2 192.168.1.20:8000 check
+
+frontend grafana
+  bind *:3000
+  default_backend grafana_servers
+
+frontend prometheus
+  bind *:9090
+  default_backend prometheus_servers
+
+backend grafana_servers
+  balance roundrobin
+  server grafana1 192.168.1.10:3000 check
+  server grafana2 192.168.1.20:3000 check
+
+backend prometheus_servers
+  balance roundrobin
+  server prometheus1 192.168.1.10:9090 check
+  server prometheus2 192.168.1.20:9090 check
